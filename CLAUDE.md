@@ -12,7 +12,9 @@ Tiny, single-page app — the whole thing is a few files:
 | `src/app.rs` | The entire UI: one `App` component. Currently a cyberpunk "Yes, And" improv scene generator (`OPENERS` / `YES_ANDS` string pools, `rand_pick` via `js_sys::Math::random`, a scene-energy meter capped at `MAX_BEATS`). |
 | `style.css` | All styling, hand-written plain CSS. Theme colors are custom properties on `:root` (`--cyan`, `--magenta`, etc.); one mobile breakpoint at 480px. |
 | `index.html` | Trunk entry: `<title>`, meta description, Google Fonts (Orbitron, Share Tech Mono), and `<link data-trunk rel="css">` pulling in `style.css`. `<body>` is empty; Leptos mounts into it. |
-| `Trunk.toml` | Build → `dist/`, dev server port 8080. |
+| `Trunk.toml` | Build → `dist/`, dev server port 8080, and a `post_build` hook that runs `redirects.sh`. |
+| `redirects.txt` | Short links: one `<slug> <url>` per line. `www.dev.quest/<slug>` redirects to `<url>`. |
+| `redirects.sh` | POSIX `sh` script (runs under dash in CI). Validates `redirects.txt` and writes a static `<slug>/index.html` (`location.replace` plus a `<meta refresh>` fallback) into Trunk's staging dir. Bad slugs, non-http(s) URLs, unsafe URL characters and duplicate or colliding slugs fail the build. |
 | `rust-toolchain.toml` | Stable + `wasm32-unknown-unknown` target. |
 | `CNAME` | Custom domain (`www.dev.quest`). The deploy workflow copies it into `dist/`. Don't delete it. |
 
