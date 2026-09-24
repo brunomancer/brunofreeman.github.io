@@ -37,9 +37,6 @@ jobs:
       - name: Build
         run: trunk build --release
 
-      - name: Preserve custom domain
-        run: cp CNAME dist/CNAME
-
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
