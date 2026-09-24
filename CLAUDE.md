@@ -12,21 +12,24 @@ Tiny, single-page app — the whole thing is a few files:
 | `src/app.rs` | The entire UI: one `App` component. Currently a cyberpunk "Yes, And" improv scene generator (`OPENERS` / `YES_ANDS` string pools, `rand_pick` via `js_sys::Math::random`, a scene-energy meter capped at `MAX_BEATS`). |
 | `style/main.css` | All styling, hand-written plain CSS. Theme colors are custom properties on `:root` (`--cyan`, `--magenta`, etc.); one mobile breakpoint at 480px. |
 | `index.html` | Trunk entry: `<title>`, meta description, Google Fonts (Orbitron, Share Tech Mono), and `<link data-trunk rel="css">` pulling in `style/main.css`. `<body>` is empty; Leptos mounts into it. |
-| `Trunk.toml` | Build → `dist/`, dev server port 8080, and a `post_build` hook that runs `redirects/redirects.sh`. |
-| `redirects/redirects.txt` | Short links: one `<slug> <url>` per line. `www.dev.quest/<slug>` redirects to `<url>`. |
-| `redirects/redirects.sh` | POSIX `sh` script (runs under dash in CI). Validates `redirects/redirects.txt` and writes a static `<slug>/index.html` (`location.replace` plus a `<meta refresh>` fallback) into Trunk's staging dir. Bad slugs, non-http(s) URLs, unsafe URL characters and duplicate or colliding slugs fail the build. |
+| `Trunk.toml` | Build → `dist/`, dev server port 8080, and a `post_build` hook that runs `cargo run --package redirects`. |
+| `redirects/redirects.sexp` | Short links: one `(slug "url")` form each, with `;` comments. `www.dev.quest/<slug>` redirects to `<url>`. |
+| `redirects/` (crate) | A program that runs on the build machine (not in the browser), as a member of the Cargo workspace rooted at `Cargo.toml`. `src/main.rs` parses the `.sexp` file with the [`lexpr`](https://docs.rs/lexpr) crate (via `datum_iter`, so each form keeps its line number), validates it, then renders a static `<slug>/index.html` with Leptos's `view!` macro (the `ssr` feature, `.to_html()`; Leptos escapes attribute values) containing `location.replace` plus a `<meta refresh>` fallback, and writes it into Trunk's staging dir (`TRUNK_STAGING_DIR`). Bad slugs, non-http(s) URLs, unsafe URL characters and duplicate or colliding slugs fail the build, with a `file:line` error. |
 | `rust-toolchain.toml` | Stable + `wasm32-unknown-unknown` target. |
 
 Conventions: Leptos 0.8 (`leptos::prelude::*`, `signal()`, `view!`, `<For>`), Rust edition 2024. No router, no server functions, no JS toolchain (npm, bundlers). Everything runs in the browser, so reach browser APIs through `js-sys`/`web-sys`. If you use a new `web-sys` API, add its feature to `Cargo.toml` too.
 
-Deploy: push to `main` → `trunk build --release` on ubuntu → GitHub Pages. No tests or lint in CI; `cargo check` locally is the quick sanity check.
+Deploy: push to `main` → `trunk build --release` on ubuntu → GitHub Pages. No tests or lint in CI; run the checks below locally.
 
 ## Commands
 
 ```sh
-trunk serve             # dev server w/ hot reload, http://localhost:8080
-trunk build --release   # production build -> dist/
-cargo check              # fast type-check without building wasm
+trunk serve                                  # dev server w/ hot reload, http://localhost:8080
+trunk build --release                        # production build -> dist/
+cargo check --workspace                      # fast type-check of the site and redirects crate
+cargo test -p redirects                      # redirect parser/validation tests
+cargo clippy --workspace --all-targets       # lint
+cargo fmt --all                              # format
 ```
 
 ## Local toolchain (macOS)

@@ -10,8 +10,8 @@ ignore = ["dist"]
 port = 8080
 open = false
 
-# Generate short-link redirect pages from redirects/redirects.txt (see redirects/redirects.sh).
+# Generate short-link redirect pages from redirects/redirects.sexp (see redirects/src/main.rs).
 [[hooks]]
 stage = "post_build"
-command = "sh"
-command_arguments = ["redirects/redirects.sh"]
+command = "cargo"
+command_arguments = ["run", "--quiet", "--package", "redirects"]
