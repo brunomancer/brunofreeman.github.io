@@ -1,15 +1,15 @@
 #!/bin/sh
-# Trunk post_build hook: turns each line of redirects.txt into a static
+# Trunk post_build hook: turns each line of redirects/redirects.txt into a static
 # <slug>/index.html that bounces to its URL. GitHub Pages can't do
 # server-side redirects, so this is as close as a static host gets.
 set -eu
 
-src="$TRUNK_SOURCE_DIR/redirects.txt"
+src="$TRUNK_SOURCE_DIR/redirects/redirects.txt"
 out="$TRUNK_STAGING_DIR"
 
 lineno=0
 fail() {
-    echo "redirects.txt:$lineno: $1" >&2
+    echo "redirects/redirects.txt:$lineno: $1" >&2
     exit 1
 }
 

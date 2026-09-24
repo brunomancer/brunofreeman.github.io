@@ -2,6 +2,6 @@
 #
 # One per line: <slug> <url>
 # Slugs may contain letters, digits, '-' and '_' (case-sensitive).
-# Built into static <slug>/index.html pages by redirects.sh at `trunk build`.
+# Built into static <slug>/index.html pages by redirects/redirects.sh at `trunk build`.
 
 improv https://partiful.com/u/Vjssb10wcMEtvmS77diu
